@@ -37,9 +37,60 @@ def load_users():
 def load_movies():
     """Load movies from u.item into database."""
 
+    print "Movies"
+
+    # Delete all rows in table, so if we need to run this a second time,
+    # we won't be trying to add duplicate users
+    Movie.query.delete()
+
+    # Read u.item file and insert data
+    for row in open("seed_data/u.item"):
+        row = row.rstrip()
+        row_attributes = row.split("|")
+
+        released_at = row_attributes[2]
+        if released_at:
+            released_at = datetime.datetime.strptime(released_at, "%d-%b-%Y")
+        else:
+            released_at = None
+
+        title = row_attributes[1][0:-7]
+
+        movie = Movie(movie_id=row_attributes[0],
+                      title=title,
+                      released_at=released_at,
+                      imdb_url=row_attributes[4])
+
+        # We need to add to the session or it won't ever be stored
+        db.session.add(movie)
+
+    # Once we're done, we should commit our work
+    db.session.commit()
+
 
 def load_ratings():
     """Load ratings from u.data into database."""
+
+    print "Ratings"
+
+    # Delete all rows in table, so if we need to run this a second time,
+    # we won't be trying to add duplicate users
+    Rating.query.delete()
+
+    # Read u.user file and insert data
+    for row in open("seed_data/u.data"):
+        row = row.rstrip()
+        user_id, movie_id, score, timestamp = row.split("\t")
+
+        user = User(user_id=user_id,
+                    age=age,
+                    zipcode=zipcode)
+
+        # We need to add to the session or it won't ever be stored
+        db.session.add(user)
+
+    # Once we're done, we should commit our work
+    db.session.commit()
 
 
 def set_val_user_id():
