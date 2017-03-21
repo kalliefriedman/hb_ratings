@@ -1,12 +1,13 @@
 """Utility file to seed ratings database from MovieLens data in seed_data/"""
 
 from sqlalchemy import func
-from model import User
+from model import User, Movie, Rating
 # from model import Rating
 # from model import Movie
 
 from model import connect_to_db, db
 from server import app
+import datetime
 
 
 def load_users():
@@ -80,14 +81,16 @@ def load_ratings():
     # Read u.user file and insert data
     for row in open("seed_data/u.data"):
         row = row.rstrip()
-        user_id, movie_id, score, timestamp = row.split("\t")
+        user_id, movie_id, score, timestamp = row.split()
 
-        user = User(user_id=user_id,
-                    age=age,
-                    zipcode=zipcode)
+        # [splits for splits in row.split("\t") if splits is not ""]
+
+        rating = Rating(user_id=user_id,
+                        movie_id=movie_id,
+                        score=score)
 
         # We need to add to the session or it won't ever be stored
-        db.session.add(user)
+        db.session.add(rating)
 
     # Once we're done, we should commit our work
     db.session.commit()
