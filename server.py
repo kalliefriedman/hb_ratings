@@ -29,12 +29,16 @@ def index():
 
 @app.route("/register", methods=["GET"])
 def register_form():
+    """Renders registration form"""
 
     return render_template("register_form.html")
 
 
 @app.route("/register-process", methods=["POST"])
 def register_process():
+    """Takes in four inputs via POST request and returns redirect to hompage.
+    Adds new user to the database if they don't exist."""
+
     email = request.form.get("email")
     password = request.form.get("password")
     age = request.form.get("age")
@@ -55,22 +59,29 @@ def register_process():
 
 @app.route("/login", methods=["GET"])
 def login_form():
-
+    """Renders login template"""
     return render_template("login.html")
 
 
 @app.route("/login-process", methods=["POST"])
 def login_process():
+    """Takes in email and password via post request and returns a redirect to
+    either homepage or login page"""
+
     email = request.form.get("email")
     password = request.form.get("password")
-#TBD: create edge case handling in case user doesn't exist
-    user_object = User.query.filter_by(email=email).one()
-    db_password = user_object.password
 
-    if db_password == password:
+    user_object = User.query.filter_by(email=email).first()
+
+    # If user exists and password is correct, redirect to homepage
+    if user_object and (user_object.password == password):
         session["user_id"] = user_object.user_id
         flash('You were successfully logged in')
         return redirect("/")
+    # If either email or password incorrect, show message to user.
+    else:
+        flash("This combination of username and password doesn't exist")
+        return redirect("/login")
 
 
 @app.route("/users")
@@ -81,8 +92,9 @@ def user_list():
     return render_template("user_list.html", users=users)
 
 
-@app.route("/logout", methods=["GET"])
+@app.route("/logout", methods=["POST"])
 def logout_process():
+    """Takes in a post request to logout and returns redirect to homepage."""
     del session["user_id"]
     flash('You were successfully logged out')
     return redirect("/")

@@ -5,8 +5,15 @@
 </head>
 
 <body>
-<a href= "/logout">Logout</a>
-
+{% if session.get("user_id") %}
+    <form action="/logout" method="POST">
+    <input type="submit" value="Logout">
+    </form>
+{% else %}
+    <form action="/login" method="GET">
+    <input type="submit" value="Login">
+    </form>
+{% endif %}
   {% block content %} put your content here {% endblock %}
 
 </body>
