@@ -28,6 +28,37 @@ def index():
     return render_template("homepage.html")
 
 
+@app.route("/register", methods=["GET"])
+def register_form():
+
+    return render_template("register_form.html")
+
+
+@app.route("/register-process", methods=["POST"])
+def register_process():
+    email = request.form.get("email")
+    password = request.form.get("password")
+    age = request.form.get("age")
+    zipcode = request.form.get("zipcode")
+
+    if (User.query.filter_by(email=email).all()) == []:
+        new_user = User(email=email, password=password, age=age,
+                        zipcode=zipcode)
+
+        db.session.add(new_user)
+        db.session.commit()
+
+    return redirect("/")
+
+
+@app.route("/users")
+def user_list():
+    """Show list of users."""
+
+    users = User.query.all()
+    return render_template("user_list.html", users=users)
+
+
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
