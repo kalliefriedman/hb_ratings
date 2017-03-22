@@ -100,6 +100,15 @@ def logout_process():
     return redirect("/")
 
 
+@app.route("/user/<user_id>")
+def display_user_profile(user_id):
+    """Takes in URL input for user_id and renders that users profile."""
+
+    user_object = User.query.filter_by(user_id=user_id).first()
+
+    return render_template("user_profile.html", user=user_object)
+
+
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
