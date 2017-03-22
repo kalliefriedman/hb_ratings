@@ -23,7 +23,6 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/')
 def index():
     """Homepage."""
-    # a = jsonify([1,3])
 
     return render_template("homepage.html")
 
@@ -48,7 +47,30 @@ def register_process():
         db.session.add(new_user)
         db.session.commit()
 
+    #TBD: create edge case handling in case user does exist
+
+
     return redirect("/")
+
+
+@app.route("/login", methods=["GET"])
+def login_form():
+
+    return render_template("login.html")
+
+
+@app.route("/login-process", methods=["POST"])
+def login_process():
+    email = request.form.get("email")
+    password = request.form.get("password")
+#TBD: create edge case handling in case user doesn't exist
+    user_object = User.query.filter_by(email=email).one()
+    db_password = user_object.password
+
+    if db_password == password:
+        session["user_id"] = user_object.user_id
+        flash('You were successfully logged in')
+        return redirect("/")
 
 
 @app.route("/users")
@@ -57,6 +79,13 @@ def user_list():
 
     users = User.query.all()
     return render_template("user_list.html", users=users)
+
+
+@app.route("/logout", methods=["GET"])
+def logout_process():
+    del session["user_id"]
+    flash('You were successfully logged out')
+    return redirect("/")
 
 
 if __name__ == "__main__":

@@ -1,17 +1,15 @@
 {% extends 'base.html' %}
 
-{% block title %} Register {% endblock %}
+{% block title %} Login {% endblock %}
 
 {% block content %}
 
-<h1>Register</h1>
+<h1>Login</h1>
 
-<form action="/register-process" method="POST">
+<form action="/login-process" method="POST">
 email:    <input type="text" name="email"> <br>
 password: <input type="text" name="password"> <br>
-age:      <input type="text" name="age"> <br>
-zipcode:  <input type="text" name="zipcode"> <br><br>
-<input type="submit" value="make account">
+<input type="submit" value="login">
 </form>
 
 {% endblock %}
