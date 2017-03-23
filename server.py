@@ -130,7 +130,26 @@ def display_movie_profile(movie_id):
     else:
         user_rating = None
 
-    return render_template("movie_details.html", movie=movie_object)
+    rating_scores = [r.score for r in movie_object.ratings]
+    try:
+        avg_rating = float(sum(rating_scores)) / len(rating_scores)
+    except ZeroDivisionError:
+        avg_rating = None
+
+    prediction = None
+
+    if (not user_rating) and user_id:
+        user = User.query.get(user_id)
+        if user:
+            prediction = user.predict_rating(movie_object)
+
+    return render_template(
+        "movie_details.html",
+        movie=movie_object,
+        user_rating=user_rating,
+        average=avg_rating,
+        prediction=prediction
+        )
 
 
 @app.route("/rating-process/<movie_id>", methods=["POST"])

@@ -12,6 +12,13 @@ Title: {{ movie.title }} <br>
 Release Date: {{ movie.released_at }} <br> 
 <a href="{{ movie.imdb_url }}">IMDB Page</a> <br><br>
 
+<p>Average rating: {{ average|round(2) }}.</p>
+{% if prediction %}
+    <p>We predict you will rate this movie {{ prediction }}.</p>
+{% elif user_rating %}
+    <p>You gave this movie a {{ user_rating.score }}.</p>
+{% endif %}
+
 {% if session.get("user_id") %}
     <form action="/rating-process/{{ movie.movie_id }}" method="POST">
     Rate this movie: <input type="integer" name="rating"> 
