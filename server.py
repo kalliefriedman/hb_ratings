@@ -104,9 +104,48 @@ def logout_process():
 def display_user_profile(user_id):
     """Takes in URL input for user_id and renders that users profile."""
 
-    user_object = User.query.filter_by(user_id=user_id).first()
+    user_object = User.query.filter_by(user_id=user_id).one()
 
     return render_template("user_profile.html", user=user_object)
+
+
+@app.route("/movies")
+def movie_list():
+    """Show list of movies."""
+    movies = Movie.query.order_by("title").all()
+    return render_template("movie_list.html", movies=movies)
+
+
+@app.route("/movie/<movie_id>")
+def display_movie_profile(movie_id):
+    """Takes in URL input for movie_id and renders that movie profile."""
+
+    movie_object = Movie.query.filter_by(movie_id=movie_id).one()
+
+    return render_template("movie_details.html", movie=movie_object)
+
+
+@app.route("/rating-process/<movie_id>", methods=["POST"])
+def rate_process(movie_id):
+    """Takes in single inputs via POST request and returns redirect to movie
+    details. Adds new rating to the database or updates existing record."""
+
+    movie_id = int(movie_id)
+    rating = int(request.form.get("rating"))
+    user_id = int(session.get("user_id"))
+    existing_rating = Rating.query.filter(rating.user_id == user_id,
+                                          rating.movie_id == movie_id).first()
+
+    if existing_rating:
+        existing_rating.score = rating
+
+    else:
+        new_rating = Rating(movie_id=movie_id, user_id=user_id, score=rating)
+        db.session.add(new_rating)
+
+    db.session.commit()
+
+    return redirect("/movie/<movie_id>")
 
 
 if __name__ == "__main__":
@@ -119,7 +158,6 @@ if __name__ == "__main__":
 
     # Use the DebugToolbar
     DebugToolbarExtension(app)
-
 
 
     app.run(port=5000, host='0.0.0.0')
