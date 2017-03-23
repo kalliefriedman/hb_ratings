@@ -122,6 +122,14 @@ def display_movie_profile(movie_id):
 
     movie_object = Movie.query.filter_by(movie_id=movie_id).one()
 
+    user_id = session.get("user_id")
+
+    if user_id:
+        user_rating = Rating.query.filter_by(movie_id=movie_id,
+                                             user_id=user_id).first()
+    else:
+        user_rating = None
+
     return render_template("movie_details.html", movie=movie_object)
 
 
@@ -145,7 +153,6 @@ def rate_process(movie_id):
 
     db.session.commit()
 
-    # SHOW THIS FIX TO KALLIE
     return redirect("/movie/" + movie_id)
 
 

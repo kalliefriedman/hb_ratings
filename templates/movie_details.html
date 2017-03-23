@@ -12,10 +12,12 @@ Title: {{ movie.title }} <br>
 Release Date: {{ movie.released_at }} <br> 
 <a href="{{ movie.imdb_url }}">IMDB Page</a> <br><br>
 
-<form action="/rating-process/{{ movie.movie_id }}" method="POST">
-Rate this movie: <input type="integer" name="rating"> 
-<input type="submit" value="Submit">
-</form>
+{% if session.get("user_id") %}
+    <form action="/rating-process/{{ movie.movie_id }}" method="POST">
+    Rate this movie: <input type="integer" name="rating"> 
+    <input type="submit" value="Submit">
+    </form>
+{% endif %}
 
 <h3>Movie Ratings</h3>
 {% for rating in movie.ratings %}
