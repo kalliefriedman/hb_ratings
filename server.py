@@ -130,11 +130,11 @@ def rate_process(movie_id):
     """Takes in single inputs via POST request and returns redirect to movie
     details. Adds new rating to the database or updates existing record."""
 
-    movie_id = int(movie_id)
+    movie_id = movie_id
     rating = int(request.form.get("rating"))
-    user_id = int(session.get("user_id"))
-    existing_rating = Rating.query.filter(rating.user_id == user_id,
-                                          rating.movie_id == movie_id).first()
+    user_id = session.get("user_id")
+    existing_rating = Rating.query.filter(Rating.user_id == user_id,
+                                          Rating.movie_id == movie_id).first()
 
     if existing_rating:
         existing_rating.score = rating
@@ -145,7 +145,8 @@ def rate_process(movie_id):
 
     db.session.commit()
 
-    return redirect("/movie/<movie_id>")
+    # SHOW THIS FIX TO KALLIE
+    return redirect("/movie/" + movie_id)
 
 
 if __name__ == "__main__":
