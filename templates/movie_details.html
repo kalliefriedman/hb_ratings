@@ -14,7 +14,7 @@ Release Date: {{ movie.released_at }} <br>
 
 <p>Average rating: {{ average|round(2) }}.</p>
 {% if prediction %}
-    <p>We predict you will rate this movie {{ prediction }}.</p>
+    <p>We predict you will rate this movie {{ prediction|round(2) }}.</p>
 {% elif user_rating %}
     <p>You gave this movie a {{ user_rating.score }}.</p>
 {% endif %}
@@ -24,6 +24,10 @@ Release Date: {{ movie.released_at }} <br>
     Rate this movie: <input type="integer" name="rating"> 
     <input type="submit" value="Submit">
     </form>
+{% endif %}
+
+{% if beratement %}
+    {{ beratement }}
 {% endif %}
 
 <h3>Movie Ratings</h3>

@@ -50,9 +50,13 @@ def register_process():
 
         db.session.add(new_user)
         db.session.commit()
+        
+        user_object = User.query.filter_by(email=email).first()
+        session["user_id"] = user_object.user_id
 
-    #TBD: create edge case handling in case user does exist
-
+    else:
+        flash("This user already exists. Please log in.")
+        return redirect("/login")
 
     return redirect("/")
 
@@ -138,17 +142,69 @@ def display_movie_profile(movie_id):
 
     prediction = None
 
-    if (not user_rating) and user_id:
+    if (not user_rating) and user_id and Rating.query.filter_by(user_id=user_id).first():
         user = User.query.get(user_id)
         if user:
             prediction = user.predict_rating(movie_object)
+
+    if prediction:
+        # User hasn't scored; use our prediction if we made one
+        effective_rating = prediction
+
+    elif user_rating:
+        # User has already scored for real; use that
+        effective_rating = user_rating.score
+
+    else:
+        # User hasn't scored, and we couldn't get a prediction
+        effective_rating = None
+
+    # Get the eye's rating, either by predicting or using real rating
+
+    the_eye = (User.query.filter_by(email="the-eye@of-judgement.com")
+                         .one())
+    eye_rating = Rating.query.filter_by(
+        user_id=the_eye.user_id, movie_id=movie_object.movie_id).first()
+
+    if eye_rating is None:
+        eye_rating = the_eye.predict_rating(movie_object)
+
+    else:
+        eye_rating = eye_rating.score
+
+    if eye_rating and effective_rating:
+        difference = abs(eye_rating - effective_rating)
+
+    else:
+        # We couldn't get an eye rating, so we'll skip difference
+        difference = None
+
+    # Depending on how different we are from the Eye, choose a
+    # message
+
+    BERATEMENT_MESSAGES = [
+        "I suppose you don't have such bad taste after all.",
+        "I regret every decision that I've ever made that has " +
+            "brought me to listen to your opinion.",
+        "Words fail me, as your taste in movies has clearly " +
+            "failed you.",
+        "That movie is great. For a clown to watch. Idiot.",
+        "Words cannot express the awfulness of your taste."
+    ]
+
+    if difference is not None:
+        beratement = BERATEMENT_MESSAGES[int(difference)]
+
+    else:
+        beratement = None
 
     return render_template(
         "movie_details.html",
         movie=movie_object,
         user_rating=user_rating,
         average=avg_rating,
-        prediction=prediction
+        prediction=prediction,
+        beratement=beratement
         )
 
 
